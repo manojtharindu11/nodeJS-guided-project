@@ -79,3 +79,23 @@ app.post("/api/products", (req, res, next) => {
     res.status(400).send(err.message);
   }
 });
+
+app.get("/api/products", (req, res) => {
+  var sql = "SELECT * FROM products";
+  var params = [];
+  db.all(sql, params, (err, rows) => {
+    try {
+      if (err) {
+        res.status(400).json({ error: err.message });
+        return;
+      } else {
+        res.json({
+          data: rows,
+          message: "success",
+        });
+      }
+    } catch (err) {
+      res.send(400).send(err);
+    }
+  });
+});
