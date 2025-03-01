@@ -1,8 +1,6 @@
 var express = require("express");
 var db = require("./database.js");
 var bodyParser = require("body-parser");
-const { request, response } = require("express");
-const send = require("send");
 
 var app = express();
 
@@ -27,8 +25,8 @@ app.post("/api/products", (req, res, next) => {
       description,
       category,
       brand,
-      expireData,
-      manufacturedData,
+      expireDate,
+      manufacturedDate,
       batchNumber,
       unitPrice,
       quantity,
@@ -41,8 +39,8 @@ app.post("/api/products", (req, res, next) => {
                 description,
                 category,
                 brand,
-                expireData,
-                manufacturedData,
+                expireDate,
+                manufacturedDate,
                 batchNumber,
                 unitPrice,
                 quantity,
@@ -56,8 +54,8 @@ app.post("/api/products", (req, res, next) => {
       description,
       category,
       brand,
-      expireData,
-      manufacturedData,
+      expireDate,
+      manufacturedDate,
       batchNumber,
       unitPrice,
       quantity,
@@ -109,8 +107,8 @@ app.put("/api/products/", (req, res, next) => {
     description,
     category,
     brand,
-    expireData,
-    manufacturedData,
+    expireDate,
+    manufacturedDate,
     batchNumber,
     unitPrice,
     quantity,
@@ -123,33 +121,52 @@ app.put("/api/products/", (req, res, next) => {
         description = ?, 
         category = ?, 
         brand = ?,
-        expiredDate = ?,
-        manufacturedData = ?,
+        expireDate = ?,
+        manufacturedDate = ?,
         batchNumber = ?,
         unitPrice = ?,
         quantity = ?,
         createdDate = ?
     WHERE id = ?`,
     [
-      id,
       productName,
       description,
       category,
       brand,
-      expireData,
-      manufacturedData,
+      expireDate,
+      manufacturedDate,
       batchNumber,
       unitPrice,
       quantity,
       createdDate,
+      id,
     ],
     function (err, result) {
       if (err) {
-        res.status(400).json({ error: err, message });
+        res.status(400).json({ error: err.message });
         return;
       } else {
         res.status(200).json({ updated: this.changes });
       }
     }
   );
+});
+
+app.delete("/api/products/:id", (req, res, next) => {
+  try {
+    db.run(
+      "DELETE FROM products WHERE id = ?",
+      req.params.id,
+      function (err, result) {
+        if (err) {
+          res.status(400).json({ error: err, message });
+          return;
+        } else {
+          res.json({ message: "deleted", rows: this.changes });
+        }
+      }
+    );
+  } catch (err) {
+    res.status(400).send(err);
+  }
 });
