@@ -63,20 +63,19 @@ app.post("/api/products", (req, res, next) => {
       createdDate,
     ];
 
-    db.run(sql, params, (err, result) => {
+    db.run(sql, params, function (err) {
       if (err) {
         res.status(400).json({ error: err.message });
         return;
       } else {
         res.json({
           message: "Success",
-          data: res.body,
+          data: req.body,
           id: this.lastID,
         });
       }
     });
   } catch (err) {
-    res.status(400);
-    send(err);
+    res.status(400).send(err.message);
   }
 });
