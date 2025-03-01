@@ -50,6 +50,7 @@ app.post("/api/products", (req, res, next) => {
             ) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `;
+
     var params = [
       productName,
       description,
@@ -83,6 +84,7 @@ app.post("/api/products", (req, res, next) => {
 app.get("/api/products", (req, res) => {
   var sql = "SELECT * FROM products";
   var params = [];
+
   db.all(sql, params, (err, rows) => {
     try {
       if (err) {
@@ -98,4 +100,56 @@ app.get("/api/products", (req, res) => {
       res.send(400).send(err);
     }
   });
+});
+
+app.put("/api/products/", (req, res, next) => {
+  const {
+    id,
+    productName,
+    description,
+    category,
+    brand,
+    expireData,
+    manufacturedData,
+    batchNumber,
+    unitPrice,
+    quantity,
+    createdDate,
+  } = req.body;
+
+  db.run(
+    `UPDATE products SET 
+        productName = ?, 
+        description = ?, 
+        category = ?, 
+        brand = ?,
+        expiredDate = ?,
+        manufacturedData = ?,
+        batchNumber = ?,
+        unitPrice = ?,
+        quantity = ?,
+        createdDate = ?
+    WHERE id = ?`,
+    [
+      id,
+      productName,
+      description,
+      category,
+      brand,
+      expireData,
+      manufacturedData,
+      batchNumber,
+      unitPrice,
+      quantity,
+      createdDate,
+    ],
+    function (err, result) {
+      if (err) {
+        res.status(400).json({ error: err, message });
+        return;
+      } else {
+        res.status(200).json({ updated: this.changes });
+      }
+    }
+  );
 });
