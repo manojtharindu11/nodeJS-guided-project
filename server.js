@@ -12,7 +12,10 @@ app.listen(HTTP_PORT, () => {
   console.log(`Server is running on ${HTTP_PORT}`);
 });
 
-app.post("/api/products", (req, res, next) => {
+app.post("/api/customers", (req, res, next) => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const creditCardRegex = /^\d{13,19}$/;
+
   try {
     var errors = [];
 
@@ -21,45 +24,62 @@ app.post("/api/products", (req, res, next) => {
     }
 
     const {
-      productName,
-      description,
-      category,
-      brand,
-      expireDate,
-      manufacturedDate,
-      batchNumber,
-      unitPrice,
-      quantity,
-      createdDate,
+      name,
+      address,
+      email,
+      dateOfBirth,
+      gender,
+      age,
+      cardHolderName,
+      cardNumber,
+      expiryDate,
+      cvv,
+      timeStamp,
     } = req.body;
 
+    if (!emailRegex.test(email)) {
+      errors.push("Email is not valid");
+    }
+
+    cardNumber = cardNumber.replace(/\D/g, "");
+    if (!creditCardRegex.test(cardNumber)) {
+      errors.push("Credit card is not valid");
+    }
+
+    if (errors.length > 0) {
+      res.status(400).json({ error: errors });
+      return;
+    }
+
     var sql = `
-            INSERT INTO products (
-                productName,
-                description,
-                category,
-                brand,
-                expireDate,
-                manufacturedDate,
-                batchNumber,
-                unitPrice,
-                quantity,
-                createdDate
+            INSERT INTO customers (
+              name,
+              address,
+              email,
+              dateOfBirth,
+              gender,
+              age,
+              cardHolderName,
+              cardNumber,
+              expiryDate,
+              cvv,
+              timeStamp
             ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
           `;
 
     var params = [
-      productName,
-      description,
-      category,
-      brand,
-      expireDate,
-      manufacturedDate,
-      batchNumber,
-      unitPrice,
-      quantity,
-      createdDate,
+      name,
+      address,
+      email,
+      dateOfBirth,
+      gender,
+      age,
+      cardHolderName,
+      cardNumber,
+      expiryDate,
+      cvv,
+      timeStamp,
     ];
 
     db.run(sql, params, function (err) {
@@ -67,9 +87,8 @@ app.post("/api/products", (req, res, next) => {
         res.status(400).json({ error: err.message });
         return;
       } else {
-        res.json({
-          message: "Success",
-          data: req.body,
+        res.status(201).json({
+          message: `customer ${name} has registered`,
           id: this.lastID,
         });
       }
@@ -79,94 +98,16 @@ app.post("/api/products", (req, res, next) => {
   }
 });
 
-app.get("/api/products", (req, res) => {
-  var sql = "SELECT * FROM products";
-  var params = [];
-
-  db.all(sql, params, (err, rows) => {
-    try {
-      if (err) {
-        res.status(400).json({ error: err.message });
-        return;
-      } else {
-        res.json({
-          data: rows,
-          message: "success",
-        });
-      }
-    } catch (err) {
-      res.send(400).send(err);
-    }
-  });
-});
-
-app.put("/api/products/", (req, res, next) => {
-  const {
-    id,
-    productName,
-    description,
-    category,
-    brand,
-    expireDate,
-    manufacturedDate,
-    batchNumber,
-    unitPrice,
-    quantity,
-    createdDate,
-  } = req.body;
-
-  db.run(
-    `UPDATE products SET 
-        productName = ?, 
-        description = ?, 
-        category = ?, 
-        brand = ?,
-        expireDate = ?,
-        manufacturedDate = ?,
-        batchNumber = ?,
-        unitPrice = ?,
-        quantity = ?,
-        createdDate = ?
-    WHERE id = ?`,
-    [
-      productName,
-      description,
-      category,
-      brand,
-      expireDate,
-      manufacturedDate,
-      batchNumber,
-      unitPrice,
-      quantity,
-      createdDate,
-      id,
-    ],
-    function (err, result) {
-      if (err) {
-        res.status(400).json({ error: err.message });
-        return;
-      } else {
-        res.status(200).json({ updated: this.changes });
-      }
-    }
-  );
-});
-
-app.delete("/api/products/:id", (req, res, next) => {
+app.get("/api/customers/", (req, res) => {
   try {
-    db.run(
-      "DELETE FROM products WHERE id = ?",
-      req.params.id,
-      function (err, result) {
-        if (err) {
-          res.status(400).json({ error: err, message });
-          return;
-        } else {
-          res.json({ message: "deleted", rows: this.changes });
-        }
+    db.all("SELECT * FROM customers", function (err, row) {
+      if (err) {
+        res.status(400).json({ error: err.message });
       }
-    );
+
+      res.status(200).json({ message: "Success", data: row });
+    });
   } catch (err) {
-    res.status(400).send(err);
+    res.status(400).send(err.message);
   }
 });

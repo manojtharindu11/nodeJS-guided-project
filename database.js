@@ -9,18 +9,19 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
   } else {
     console.log("Connected to the SQLite Database");
     db.run(
-      `CREATE TABLE IF NOT EXISTS products (
+      `CREATE TABLE IF NOT EXISTS customers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            productName TEXT NOT NULL,
-            description TEXT NOT NULL,
-            category TEXT NOT NULL,
-            brand TEXT NOT NULL,
-            expireDate TEXT,
-            manufacturedDate TEXT,
-            batchNumber INTEGER,
-            unitPrice INTEGER NOT NULL,
-            quantity INTEGER NOT NULL,
-            createdDate TEXT NOT NULL
+            name TEXT NOT NULL,
+            address TEXT NOT NULL,
+            email TEXT NOT NULL,
+            dateOfBirth TEXT NOT NULL,
+            gender TEXT,
+            age INTEGER,
+            cardHolderName TEXT NOT NULL,
+            cardNumber TEXT NOT NULL,
+            expiryDate TEXT NOT NULL,
+            cvv INTEGER NOT NULL,
+            timeStamp TEXT NOT NULL
         )`,
       (err) => {
         if (err) {
@@ -28,34 +29,36 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
         } else {
           console.log("Table created or already exists");
 
-          db.get("SELECT COUNT(*) as count FROM products", (err, row) => {
+          db.get("SELECT COUNT(*) as count FROM customers", (err, row) => {
             if (err) {
               console.error("Error checking table:", err.message);
             } else if (row.count === 0) {
               var insert = `
-                INSERT INTO products (
-                    productName,
-                    description,
-                    category,
-                    brand,
-                    expireDate,
-                    manufacturedDate,
-                    batchNumber,
-                    unitPrice,
-                    quantity,
-                    createdDate
+                INSERT INTO customers (
+                      name,
+                      address,
+                      email,
+                      dateOfBirth,
+                      gender,
+                      age,
+                      cardHolderName,
+                      cardNumber,
+                      expiryDate,
+                      cvv,
+                      timeStamp
                 ) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
               `;
               db.run(insert, [
-                "White Basmathi Rice",
-                "Premium quality Basmathi rice",
-                "Grains",
-                "Brand A",
-                "2025-12-31",
-                "2023-01-15",
-                123456,
-                200,
+                "Kasun Perera",
+                "No. 25, Galle Road, Colombo 03",
+                "kasun.perera@example.com",
+                "1995-08-15",
+                "Male",
+                28,
+                "K. Perera",
+                "4539 1234 5678 9012",
+                "2026-11",
                 50,
                 new Date().toISOString().split("T")[0],
               ]);
