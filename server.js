@@ -41,8 +41,9 @@ app.post("/api/customers", (req, res, next) => {
       errors.push("Email is not valid");
     }
 
-    cardNumber = cardNumber.replace(/\D/g, "");
-    if (!creditCardRegex.test(cardNumber)) {
+    const creditCardNumber = cardNumber.replace(/\D/g, "");
+
+    if (!creditCardRegex.test(creditCardNumber)) {
       errors.push("Credit card is not valid");
     }
 
@@ -76,7 +77,7 @@ app.post("/api/customers", (req, res, next) => {
       gender,
       age,
       cardHolderName,
-      cardNumber,
+      creditCardNumber,
       expiryDate,
       cvv,
       timeStamp,
@@ -92,20 +93,6 @@ app.post("/api/customers", (req, res, next) => {
           id: this.lastID,
         });
       }
-    });
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
-
-app.get("/api/customers/", (req, res) => {
-  try {
-    db.all("SELECT * FROM customers", function (err, row) {
-      if (err) {
-        res.status(400).json({ error: err.message });
-      }
-
-      res.status(200).json({ message: "Success", data: row });
     });
   } catch (err) {
     res.status(400).send(err.message);
